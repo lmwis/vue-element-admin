@@ -64,7 +64,6 @@ export default {
   components: { Sticky },
   data() {
     return {
-      // searchModeName: "最近一小时",
       searchMode: '',
       startTime: 1,
       endTime: 1,
