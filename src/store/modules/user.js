@@ -34,10 +34,12 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
+        console.log('login::' + JSON.stringify(response))
+        if (response.status === 'success') {
+          commit('SET_TOKEN', response.data.token)
+          setToken(response.data.token) // 封装了 cookie
+          resolve()
+        }
       }).catch(error => {
         reject(error)
       })
@@ -48,13 +50,14 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
+        if (!response) {
           reject('Verification failed, please Login again.')
         }
 
-        const { roles, name, avatar, introduction } = data
+        response.roles = ['admin']
+        response.avatar = '127.0.0.1:9001/file/1653213695649fa8d6a25ca6a426095fbde0de16f92f5.png'
+        response.introduction = 'mock introduction'
+        const { roles, username, avatar, introduction } = response
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
@@ -62,10 +65,10 @@ const actions = {
         }
 
         commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
+        commit('SET_NAME', username)
         commit('SET_AVATAR', avatar)
         commit('SET_INTRODUCTION', introduction)
-        resolve(data)
+        resolve(response)
       }).catch(error => {
         reject(error)
       })
